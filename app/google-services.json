@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "467513647786",
+    "project_id": "instagum-181ae",
+    "storage_bucket": "instagum-181ae.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:467513647786:android:7ba7042f6ef7fa696fe6d3",
+        "android_client_info": {
+          "package_name": "com.sarks.instagum"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "467513647786-h9iiptqsv10jgn4nl9ai43pdtfqpn9in.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCHBKVW6Vuz7PTdPY1fjJxmqkW_7KCPi8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "467513647786-h9iiptqsv10jgn4nl9ai43pdtfqpn9in.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
