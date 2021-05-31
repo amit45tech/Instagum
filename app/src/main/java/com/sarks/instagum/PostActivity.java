@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,11 +20,16 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
+import com.hendraanggrian.appcompat.socialview.Hashtag;
+import com.hendraanggrian.appcompat.widget.HashtagArrayAdapter;
 import com.hendraanggrian.appcompat.widget.SocialAutoCompleteTextView;
 import com.theartofdev.edmodo.cropper.CropImage;
 
@@ -64,6 +70,7 @@ public class PostActivity extends AppCompatActivity {
                 upload();
             }
         });
+
         CropImage.activity().start(PostActivity.this);
 
     }
@@ -74,23 +81,23 @@ public class PostActivity extends AppCompatActivity {
         pd.show();
 
         if (imageUri != null){
-            StorageReference filePath = FirebaseStorage.getInstance().getReference("Posts").child(System.currentTimeMillis() + "." + getFileExtension(imageUri));
+            final StorageReference filePath = FirebaseStorage.getInstance().getReference("Posts").child(System.currentTimeMillis() + "." + getFileExtension(imageUri));
 
             StorageTask uploadtask = filePath.putFile(imageUri);
             uploadtask.continueWithTask(new Continuation() {
                 @Override
                 public Object then(@NonNull Task task) throws Exception {
-                  if(task.isSuccessful())
+                  if(!task.isSuccessful())
                   {
                       throw task.getException();
                   }
                     return filePath.getDownloadUrl();
                 }
-            }).addOnCompleteListener(new OnCompleteListener() {
+            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
                 @Override
-                public void onComplete(@NonNull Task task) {
+                public void onComplete(@NonNull Task<Uri> task) {
 
-                    Uri downloadUri = (Uri) task.getResult();
+                    Uri downloadUri = task.getResult();
                     imageUrl = downloadUri.toString();
 
                     DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Posts");
@@ -105,7 +112,7 @@ public class PostActivity extends AppCompatActivity {
 
                     ref.child(postId).setValue(map);
 
-                    DatabaseReference mHashtagRef = FirebaseDatabase.getInstance().getReference().child("HashTags");
+                    DatabaseReference mHashTagRef = FirebaseDatabase.getInstance().getReference().child("HashTags");
                     List<String> hashTags = description.getHashtags();
                     if(!hashTags.isEmpty()){
                         for(String tag: hashTags){
@@ -113,7 +120,7 @@ public class PostActivity extends AppCompatActivity {
                             map.put("tag", tag.toLowerCase());
                             map.put("postid", postId);
 
-                            mHashtagRef.child(tag.toLowerCase()).setValue(map);
+                            mHashTagRef.child(tag.toLowerCase()).child(postId).setValue(map);
                         }
                     }
                     pd.dismiss();
@@ -151,5 +158,28 @@ public class PostActivity extends AppCompatActivity {
             finish();
         }
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        final ArrayAdapter<Hashtag> hashtagAdapter = new HashtagArrayAdapter<>(getApplication());
+
+        FirebaseDatabase.getInstance().getReference().child("HashTags").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot snapshot1 : snapshot.getChildren()){
+                    hashtagAdapter.add(new Hashtag(snapshot1.getKey(), (int)snapshot1.getChildrenCount()));
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        description.setHashtagAdapter(hashtagAdapter);
     }
 }

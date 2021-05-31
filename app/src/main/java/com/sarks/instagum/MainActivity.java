@@ -9,7 +9,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.database.FirebaseDatabase;
+
 import com.sarks.instagum.Fragments.HomeFragment;
 import com.sarks.instagum.Fragments.NotificationFragment;
 import com.sarks.instagum.Fragments.ProfileFragment;

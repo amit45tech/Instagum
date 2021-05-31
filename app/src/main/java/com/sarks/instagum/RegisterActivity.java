@@ -46,7 +46,6 @@ public class RegisterActivity extends AppCompatActivity {
         mRootRef = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
 
-        mRootRef.child("home").child("21kin").setValue("amit kumar");
 
         loginUser.setOnClickListener(new View.OnClickListener() {
             @Override
