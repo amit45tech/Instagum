@@ -81,6 +81,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
         isLiked(post.getPostid(), holder.like);
         noOfLikes(post.getPostid(), holder.noOfLikes);
         getComments(post.getPostid(), holder.noOfComments);
+        isSaved(post.getPostid(), holder.save);
 
         holder.like.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,7 +116,20 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
             }
         });
 
+        holder.save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (holder.save.getTag().equals("save")){
+                    FirebaseDatabase.getInstance().getReference().child("Saves").child(firebaseUser.getUid()).child(post.getPostid()).setValue(true);
+                }else{
+                    FirebaseDatabase.getInstance().getReference().child("Saves").child(firebaseUser.getUid()).child(post.getPostid()).removeValue();
+                }
+            }
+        });
+
     }
+
+
 
     @Override
     public int getItemCount() {
@@ -146,6 +160,29 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
 
 
         }
+    }
+
+    private void isSaved(String postId, ImageView image) {
+
+        FirebaseDatabase.getInstance().getReference().child("Saves").child(firebaseUser.getUid()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                if (snapshot.child(postId).exists()){
+                    image.setImageResource(R.drawable.ic_saved);
+                    image.setTag("saved");
+                }else{
+                    image.setImageResource(R.drawable.ic_save);
+                    image.setTag("save");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
     }
 
     private void isLiked(String postId, ImageView imageView){
